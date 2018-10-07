@@ -1,5 +1,5 @@
 from pygame.locals import *
-from game.Goblin import Goblin
+from game import Goblin, Ogre, Troll
 from random import randint
 import pygame
 import sys
@@ -11,19 +11,28 @@ class BattleField:
     _running = True
     _display_surf = None
     global_army_group = []
-    goblin_army = 100
+    goblin_army = 10
     ogre_army = 5
     troll_army = 3
     windowWidth = 1200
     windowHeight = 1000
-
+    army_list_coord_list = ['0:0']
 
     def on_init(self):
         pygame.init()
         # global army group - consists of all warriors
         for goblin_idx in range(self.goblin_army):
-            goblin = Goblin(self.base_path + "/images/goblin.png", 150, 150, 0, 0, self.windowHeight, self.windowWidth)
+            goblin = Goblin.Goblin(self.base_path + "/images/goblin.png", 150, 150, 10, 10, self.windowWidth - 30, self.windowHeight - 30)
             self.global_army_group.append(goblin)
+
+        for ogre_idx in range(self.ogre_army):
+            ogre = Ogre.Ogre(self.base_path + "/images/ogre.png", 450, 450, 10, 10, self.windowWidth - 30, self.windowHeight - 30)
+            self.global_army_group.append(ogre)
+
+        for troll_idx in range(self.troll_army):
+            troll= Troll.Troll(self.base_path + "/images/troll.png", 750, 750, 10, 10, self.windowWidth - 30, self.windowHeight - 30)
+            self.global_army_group.append(troll)
+
 
         self._display_surf = pygame.display.set_mode((self.windowWidth, self.windowHeight), pygame.HWSURFACE)
 
@@ -40,20 +49,21 @@ class BattleField:
     def on_render(self):
         self._display_surf.fill((0, 0, 0))
 
-        army_list_coord_list = []
+        army_list_coord_list = ['0:0']
 
         # to ensure bots do not overlap
         for bot in self.global_army_group:
-            if bot.type == "Goblin":
-                bot.fuzzy_move()
+            bot.fuzzy_move()
 
             army_list_coord_list = bot.update(army_list_coord_list)
-            print(army_list_coord_list)
+            #print(army_list_coord_list)
             bot.draw(self._display_surf, bot._image_surf)
 
         #self.apple.draw(self._display_surf, self._apple_surf)
         #self.computer.draw(self._display_surf, self._image_surf)
         pygame.display.flip()
+        self.army_list_coord_list = []
+        self.army_list_coord_list.append(army_list_coord_list)
 
 
     def on_cleanup(self):

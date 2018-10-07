@@ -11,15 +11,15 @@ class Skeleton:
     attack = None
     speed = None
     _image_surf = None
-    sprite_width = 0
-    sprite_height = 0
+    sprite_width = 30
+    sprite_height = 30
     type = None
     COLON = ":"
 
-    def __init__(self, image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y):
+    def __init__(self, image, army_x, army_y, global_min_x, global_min_y, global_max_x, global_max_y):
         # formation based on army coordinates
-        self.x = random.randint(army_x -50, army_x + 50)
-        self.y = random.randint(army_y - 50, army_y + 50)
+        self.x = random.randint(army_x - 70, army_x + 70)
+        self.y = random.randint(army_y - 70, army_y + 70)
         self.global_min_x, self.global_min_y, self.global_max_x, self.global_max_y = global_min_x, global_min_y, global_max_x, global_max_y
         self.image = image
         img = pygame.image.load(self.image)   # sprite
@@ -28,21 +28,42 @@ class Skeleton:
 
     def update(self, army_list_coord_list):
         # update position
-        if self.direction == 0 and (self.x + self.step + self.sprite_width) <= self.global_max_x and (str(self.x + self.step) + self.COLON + str(self.y)) not in army_list_coord_list:
-            self.x = self.x + self.step
-            army_list_coord_list.append((str(self.x + self.step) + self.COLON + str(self.y)))
+        if self.direction == 0 and (self.x + self.step * self.sprite_height + self.sprite_width) <= self.global_max_x:
+            for i in range(self.sprite_height*2 + 1):
+                if (str(self.x + i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+                elif (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list or (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+            self.x = self.x + self.step * self.sprite_height
+            army_list_coord_list.append((str(self.x + self.step * self.sprite_height) + self.COLON + str(self.y)))
 
-        if self.direction == 1 and (self.x - self.step) >= self.global_min_x and (str(self.x - self.step) + self.COLON + str(self.y)) not in army_list_coord_list:
-            self.x = self.x - self.step
-            army_list_coord_list.append((str(self.x - self.step) + self.COLON + str(self.y)))
 
-        if self.direction == 2 and (self.y - self.step) >= self.global_min_y and (str(self.y - self.step) + self.COLON + str(self.x)) not in army_list_coord_list:
-            self.y = self.y - self.step
-            army_list_coord_list.append((str(self.y - self.step) + self.COLON + str(self.x)))
+        if self.direction == 1 and (self.x - self.step * self.sprite_height) >= self.global_min_x:
+            for i in range(self.sprite_height*2 + 1):
+                if (str(self.x + i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+                elif (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list or (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+            self.x = self.x - self.step * self.sprite_height
+            army_list_coord_list.append((str(self.x - self.step * self.sprite_height) + self.COLON + str(self.y)))
 
-        if self.direction == 3 and (self.y + self.step + self.sprite_height) <= self.global_max_y and (str(self.y + self.step) + self.COLON + str(self.x)) not in army_list_coord_list:
-            self.y = self.y + self.step
-            army_list_coord_list.append((str(self.y + self.step) + self.COLON + str(self.x)))
+        if self.direction == 2 and (self.y - self.step * self.sprite_height) >= self.global_min_y:
+            for i in range(self.sprite_height*2 + 1):
+                if (str(self.x + i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+                elif (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list or (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+            self.y = self.y - self.step * self.sprite_height
+            army_list_coord_list.append((str(self.x) + self.COLON + str(self.y - self.step * self.sprite_height)))
+
+        if self.direction == 3 and (self.y + self.step * self.sprite_height) <= self.global_max_y:
+            for i in range(self.sprite_height*2 + 1):
+                if (str(self.x + i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y)) in army_list_coord_list or (str(self.x) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+                elif (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list or (str(self.x + i) + self.COLON + str(self.y + i)) in army_list_coord_list  or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list or (str(self.x - i) + self.COLON + str(self.y - i)) in army_list_coord_list:
+                    return ['0:0']
+            self.y = self.y + self.step * self.sprite_height
+            army_list_coord_list.append(str(self.x) + self.COLON + (str(self.y + self.step * self.sprite_height)))
 
         return army_list_coord_list
 
