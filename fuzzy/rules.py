@@ -89,6 +89,15 @@ goblin_enemy_troll.view()
 #
 # movement.view()
 
+
+
+#########################################################################################
+
+rule1 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['one'], movement['attack'])
+rule2 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['small'], movement['attack'])
+rule3 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['medium'], movement['stay'])
+rule4 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['large'], movement['move'])
+
 rule5 = ctrl.Rule(goblin_team['one'] & ogre_enemy_goblin['one'], movement['move'])
 rule6 = ctrl.Rule(goblin_team['one'] & ogre_enemy_goblin['small'], movement['move'])
 rule7 = ctrl.Rule(goblin_team['one'] & ogre_enemy_goblin['medium'], movement['move'])
@@ -128,13 +137,6 @@ rule33 = ctrl.Rule(goblin_team['large'] & troll_enemy_goblin['one'], movement['a
 rule34 = ctrl.Rule(goblin_team['large'] & troll_enemy_goblin['small'], movement['attack'])
 rule35 = ctrl.Rule(goblin_team['large'] & troll_enemy_goblin['medium'], movement['stay'])
 rule36 = ctrl.Rule(goblin_team['large'] & troll_enemy_goblin['large'], movement['stay'])
-
-#########################################################################################
-
-rule1 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['one'], movement['attack'])
-rule2 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['small'], movement['attack'])
-rule3 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['medium'], movement['stay'])
-rule4 = ctrl.Rule(ogre_team['one'] & goblin_enemy_ogre['large'], movement['move'])
 
 rule37 = ctrl.Rule(ogre_team['small'] & goblin_enemy_ogre['one'], movement['attack'])
 rule38 = ctrl.Rule(ogre_team['small'] & goblin_enemy_ogre['small'], movement['attack'])
