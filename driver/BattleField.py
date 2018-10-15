@@ -13,9 +13,9 @@ class BattleField:
     _running = True
     _display_surf = None
     global_army_group = []
-    goblin_army = 1
-    ogre_army = 1
-    troll_army = 1
+    goblin_army = 15
+    ogre_army = 5
+    troll_army = 3
     windowWidth = 1000
     windowHeight = 1000
     sprite_height = 30
@@ -98,6 +98,7 @@ class BattleField:
             if value.dead is False:
                 self.global_army_group.append(value)
             else:
+                self.grid[value.gridx][value.gridy] = '0'
                 if value.type == 'G':
                     self.goblin_army -= 1
                 elif value.type == 'O':
@@ -125,7 +126,8 @@ class BattleField:
         while (self._running):
             self.on_render()
 
-            time.sleep(300.0 / 1000.0)
+            # TO CHANGE DELAY
+            time.sleep(400.0 / 1000.0)
         self.on_cleanup()
 
 

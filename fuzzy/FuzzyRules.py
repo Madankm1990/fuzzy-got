@@ -8,6 +8,9 @@ class FuzzyRules(object):
 
     def __init__(self):
         # initialize all rules
+        #########################################################################################
+        # SPEED
+        #########################################################################################
         speed = ctrl.Antecedent(np.arange(0, 8, 1), 'speed_variations')
         fuzzy_speed = ctrl.Consequent(np.arange(0, 8, 1), 'fuzzy_speed_variations')
 
@@ -26,6 +29,9 @@ class FuzzyRules(object):
         movement_ctrl_speed = ctrl.ControlSystem([rule_fast_speed, rule_medium_speed, rule_slow_speed])
         self.movement_score = ctrl.ControlSystemSimulation(movement_ctrl_speed)
 
+        #########################################################################################
+        # ATTACK
+        #########################################################################################
         attack = ctrl.Antecedent(np.arange(0, 100, 1), 'attack_variations')
         fuzzy_attack = ctrl.Consequent(np.arange(0, 100, 1), 'fuzzy_attack_variations')
 
@@ -44,6 +50,9 @@ class FuzzyRules(object):
         movement_ctrl_attack = ctrl.ControlSystem([rule_high_attack, rule_medium_attack, rule_low_attack])
         self.attack_score = ctrl.ControlSystemSimulation(movement_ctrl_attack)
 
+        #########################################################################################
+        # DECISION MAKING - WHETHER TO STAY, MOVE OR ATTACK
+        #########################################################################################
         ogre_team = ctrl.Antecedent(np.arange(0, 49, 1), 'ogre_team')
         goblin_team = ctrl.Antecedent(np.arange(0, 25, 1), 'goblin_team')
         troll_team = ctrl.Antecedent(np.arange(0, 81, 1), 'troll_team')
@@ -259,13 +268,13 @@ class FuzzyRules(object):
 
     def get_fuzzy_value_for_attack(self, attack_cmd):
         if attack_cmd == "high":
-            self.attack_score.input['attack_variations'] = 70
+            self.attack_score.input['attack_variations'] = random.randrange(55,70)
 
         elif attack_cmd == "medium":
-            self.attack_score.input['attack_variations'] = 50
+            self.attack_score.input['attack_variations'] = random.randrange(30,50)
 
         elif attack_cmd == "low":
-            self.attack_score.input['attack_variations'] = 25
+            self.attack_score.input['attack_variations'] = random.randrange(10,25)
 
         self.attack_score.compute()
         return int(self.attack_score.output['fuzzy_attack_variations'])
