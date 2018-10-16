@@ -6,12 +6,12 @@ class Ogre(Skeleton):
 
     def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
-        self.health = 200
         self.attack = "medium"
         self.speed = "medium"
         self.type = "O"
         self.scan_range = 7
         self.unique_id = "O" + str(idx)
+        self.max_charge = 2
 
 
     def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict):

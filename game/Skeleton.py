@@ -12,7 +12,7 @@ class Skeleton:
     health = 0
     attack = None
     attack_rate = 0
-    attack_charge_full = True
+    attack_charge_full = 0
     speed = None
     _image_surf = None
     _attack_surf = None
@@ -23,8 +23,10 @@ class Skeleton:
     scan_range = None
     dead = False
     unique_id = None
+    max_charge = 0
 
     def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x, army_y, global_min_x, global_min_y, global_max_x, global_max_y):
+        self.health = 500
         # formation based on army coordinates
         self.global_min_x, self.global_min_y, self.global_max_x, self.global_max_y = global_min_x, global_min_y, global_max_x, global_max_y
         self.up_image = up_image
@@ -45,12 +47,12 @@ class Skeleton:
         self.y = army_y * self.sprite_height
 
     def update(self, grid, display_surf, to_attack, direction, enemy_bot, temp_bot_coord_dict):
-        if to_attack and self.attack_charge_full:
+        if to_attack and self.attack_charge_full == self.max_charge:
             enemy_bot = self.attack_enemy(display_surf, direction, enemy_bot)
             if enemy_bot.dead:
                 grid[enemy_bot.gridx][enemy_bot.gridy] = '0'
         else:
-            self.attack_charge_full = True
+            self.attack_charge_full+=1
             # update position
             if self.direction == 0 and (self.gridx + self.step) < self.global_max_x:
                 if grid[(self.gridx + self.step)][self.gridy] == '0':
@@ -171,7 +173,7 @@ class Skeleton:
 
 
     def attack_enemy(self, surface, direction, enemy_bot):
-        self.attack_charge_full = False
+        self.attack_charge_full = 0
         if direction == "up":
             surface.blit(self._attack_surf, (self.x, self.y - 1 * self.sprite_height))
         elif direction == "down":

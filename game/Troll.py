@@ -6,12 +6,12 @@ class Troll(Skeleton):
 
     def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
-        self.health = 300
         self.attack = "high"
         self.speed = "slow"
         self.type = "T"
         self.scan_range = 9
         self.unique_id = "T" + str(idx)
+        self.max_charge = 3
 
 
     def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict):

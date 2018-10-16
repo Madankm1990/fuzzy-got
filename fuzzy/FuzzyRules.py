@@ -18,9 +18,9 @@ class FuzzyRules(object):
         speed['medium'] = fuzz.trapmf(speed.universe,[2, 3, 4, 5])
         speed['fast'] = fuzz.trapmf(speed.universe, [4,5,6,7])
 
-        fuzzy_speed['slow'] = fuzz.trapmf(speed.universe, [0, 1, 2, 3])
-        fuzzy_speed['medium'] = fuzz.trapmf(speed.universe, [2, 3, 4, 5])
-        fuzzy_speed['fast'] = fuzz.trapmf(speed.universe, [4, 5, 6, 7])
+        fuzzy_speed['slow'] = fuzz.trimf(speed.universe, [0, 1, 2])
+        fuzzy_speed['medium'] = fuzz.trimf(speed.universe, [1, 2, 3])
+        fuzzy_speed['fast'] = fuzz.trimf(speed.universe, [2, 3, 4])
 
         rule_fast_speed = ctrl.Rule(speed['fast'], fuzzy_speed['fast'])
         rule_medium_speed = ctrl.Rule(speed['medium'], fuzzy_speed['medium'])

@@ -6,12 +6,12 @@ class Goblin(Skeleton):
 
     def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
-        self.health = 100
         self.attack = "low"
         self.speed = "fast"
         self.type = "G"
         self.scan_range = 5
         self.unique_id = "G" + str(idx)
+        self.max_charge = 1
 
 
     def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict):

@@ -14,8 +14,8 @@ class BattleField:
     _display_surf = None
     global_army_group = []
     goblin_army = 10
-    ogre_army = 5
-    troll_army = 3
+    ogre_army = 0
+    troll_army = 0
     windowWidth = 1000
     windowHeight = 1000
     sprite_height = 60
@@ -73,7 +73,7 @@ class BattleField:
         for bot in self.global_army_group:
             bot.create_avatar()
 
-        pygame.display.set_caption('Goblins Ogres & Trolls - The Grand GOT War')
+        pygame.display.set_caption('Ninjas Samurais & Mages - The Grand NSM War')
         self._running = True
 
 
@@ -94,17 +94,20 @@ class BattleField:
             self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict)
 
         self.global_army_group = []
+        self.goblin_army = 0
+        self.ogre_army = 0
+        self.troll_army = 0
         for key, value in temp_bot_coord_dict.items():
             if value.dead is False:
                 self.global_army_group.append(value)
+                if value.type == 'G':
+                    self.goblin_army += 1
+                elif value.type == 'O':
+                    self.ogre_army += 1
+                elif value.type == 'T':
+                    self.troll_army += 1
             else:
                 self.grid[value.gridx][value.gridy] = '0'
-                if value.type == 'G':
-                    self.goblin_army -= 1
-                elif value.type == 'O':
-                    self.ogre_army -= 1
-                elif value.type == 'T':
-                    self.troll_army -= 1
 
         print("****************")
         print("GOBLINS:" + str(self.goblin_army) if self.goblin_army >=0 else 0)
@@ -129,7 +132,7 @@ class BattleField:
             self.on_render()
 
             # TO CHANGE DELAY
-            time.sleep(900.0 / 1000.0)
+            time.sleep(500.0 / 1000.0)
         self.on_cleanup()
 
 
