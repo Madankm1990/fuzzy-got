@@ -7,6 +7,7 @@ class Skeleton:
     direction = -1
     step = 1
     image = None
+    up_image = down_image = left_image = right_image = None
     attack_image = None
     health = 0
     attack = None
@@ -15,23 +16,29 @@ class Skeleton:
     speed = None
     _image_surf = None
     _attack_surf = None
-    sprite_width = 30
-    sprite_height = 30
+    sprite_width = 60
+    sprite_height = 60
     type = None
     COLON = ":"
     scan_range = None
     dead = False
     unique_id = None
 
-    def __init__(self, image, attack_image, army_x, army_y, global_min_x, global_min_y, global_max_x, global_max_y):
+    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x, army_y, global_min_x, global_min_y, global_max_x, global_max_y):
         # formation based on army coordinates
         self.global_min_x, self.global_min_y, self.global_max_x, self.global_max_y = global_min_x, global_min_y, global_max_x, global_max_y
-        self.image = image
+        self.up_image = up_image
+        self.down_image = down_image
+        self.left_image = left_image
+        self.right_image = right_image
         self.attack_image = attack_image
-        img = pygame.image.load(self.image)   # sprite
-
-        self.sprite_width = img.get_width()
-        self.sprite_height = img.get_height()
+        img_up = pygame.image.load(self.up_image)   # sprite
+        img_up = pygame.transform.scale(img_up, (60, 60))
+        img_down = pygame.image.load(self.down_image)   # sprite
+        img_left = pygame.image.load(self.left_image)   # sprite
+        img_right = pygame.image.load(self.right_image)   # sprite
+        self.sprite_width = img_up.get_width()
+        self.sprite_height = img_up.get_height()
         self.gridy = army_y
         self.gridx = army_x
         self.x = army_x * self.sprite_width
@@ -91,19 +98,31 @@ class Skeleton:
 
     def moveRight(self):
         self.direction = 0
+        self.image = self.right_image
+        self._image_surf = self._right_image_surf
 
     def moveLeft(self):
         self.direction = 1
+        self.image = self.left_image
+        self._image_surf = self._left_image_surf
 
     def moveUp(self):
         self.direction = 2
+        self.image = self.up_image
+        self._image_surf = self._up_image_surf
 
     def moveDown(self):
         self.direction = 3
+        self.image = self.down_image
+        self._image_surf = self._down_image_surf
 
     def create_avatar(self):
-        self._image_surf = pygame.image.load(self.image).convert()
-        self._attack_surf = pygame.image.load(self.attack_image).convert()
+        self._up_image_surf = pygame.transform.scale(pygame.image.load(self.up_image), (self.sprite_width, self.sprite_height)).convert()
+        self._down_image_surf = pygame.transform.scale(pygame.image.load(self.down_image), (self.sprite_width, self.sprite_height)).convert()
+        self._left_image_surf = pygame.transform.scale(pygame.image.load(self.left_image), (self.sprite_width, self.sprite_height)).convert()
+        self._right_image_surf = pygame.transform.scale(pygame.image.load(self.right_image), (self.sprite_width, self.sprite_height)).convert()
+
+        self._attack_surf = pygame.transform.scale(pygame.image.load(self.attack_image), (self.sprite_width, self.sprite_height)).convert()
 
     def draw(self, surface, image):
         surface.blit(image, (self.x, self.y))
