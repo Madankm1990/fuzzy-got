@@ -1,4 +1,5 @@
 from random import randrange
+import pygame
 
 from game.Skeleton import Skeleton
 
@@ -9,15 +10,17 @@ class Ogre(Skeleton):
         self.attack = "medium"
         self.speed = "medium"
         self.type = "O"
-        self.scan_range = 7
+        self.scan_range = 5
         self.unique_id = "O" + str(idx)
         self.max_charge = 2
+        self.font = pygame.font.SysFont('Sans', 15)
 
 
-    def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict):
+    def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict,highlighter):
         try:
             # scan the stage
             goblin_count, ogre_count, troll_count = self.scan_stage(grid)
+            self.attack_charge_full+=1
             motive = None
 
             if goblin_count == 0 and troll_count == 0:
@@ -71,6 +74,20 @@ class Ogre(Skeleton):
 
                 grid, enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, False, None, None, temp_bot_coord_dict)
 
+            if highlighter:
+                step_path = int(self.scan_range/ 2)
+                for i in range(-step_path, step_path + 1):
+                    for j in range(-step_path, step_path + 1):
+                        for highlighter_idx in range(self.sprite_width):
+                            _display_surf.set_at(((self.x + int(self.sprite_width / 2)) + i * highlighter_idx,
+                                                  (self.y + int(self.sprite_height / 2)) + j * highlighter_idx),
+                                                 (255, 0, 0))
+            text = self.font.render(decision, True, (255, 0, 0), (255, 255, 255))
+            textrect = text.get_rect()
+            textrect.centerx = self.x + int(self.sprite_width / 2)
+            textrect.centery = self.y
+            _display_surf.blit(text, textrect)
+
             return grid, temp_bot_coord_dict
         except:
             return grid, temp_bot_coord_dict
@@ -81,14 +98,15 @@ class Ogre(Skeleton):
         if motive is not None and motive == "explore":
             # either make a random move or
             # group together and move in unison
-            random_decision = int(randrange(1, 6))
-            if random_decision % 5 == 0:
+            random_decision = int(randrange(1, 100))
+            if random_decision % 2 == 0 or random_decision % 3 == 0 or random_decision % 5 == 0:
                 for proximity in range(2):
                     side = self.find_others(grid, [self.type], proximity + 1)
                     if side:
                         print(self.unique_id + " SAYS \"OKAY LET'S TEAM UP AND BEAT EM!!\"")
                         return proximity + 1, side
             if side is None:  # random pick
+                random_decision = int(randrange(1, 5))
                 if random_decision == 1:
                     return 3, "up"
                 elif random_decision == 2:
@@ -97,7 +115,7 @@ class Ogre(Skeleton):
                     return 3, "right"
                 elif random_decision == 4:
                     return 3, "down"
-        for proximity in range(2):
+        for proximity in range(int(self.scan_range/2)):
             side = self.find_others(grid, ["G", "T"], proximity + 1)
             if side and motive is not None and motive == "towards":
                 return proximity + 1, side

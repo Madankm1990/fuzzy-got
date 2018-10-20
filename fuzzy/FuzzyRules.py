@@ -18,9 +18,9 @@ class FuzzyRules(object):
         speed['medium'] = fuzz.trapmf(speed.universe,[2, 3, 4, 5])
         speed['fast'] = fuzz.trapmf(speed.universe, [4,5,6,7])
 
-        fuzzy_speed['slow'] = fuzz.trimf(speed.universe, [0, 1, 2])
-        fuzzy_speed['medium'] = fuzz.trimf(speed.universe, [1, 2, 3])
-        fuzzy_speed['fast'] = fuzz.trimf(speed.universe, [2, 3, 4])
+        fuzzy_speed['slow'] = fuzz.trimf(speed.universe, [0, 1, 1])
+        fuzzy_speed['medium'] = fuzz.trimf(speed.universe, [1, 1, 2])
+        fuzzy_speed['fast'] = fuzz.trimf(speed.universe, [2, 3, 3])
 
         rule_fast_speed = ctrl.Rule(speed['fast'], fuzzy_speed['fast'])
         rule_medium_speed = ctrl.Rule(speed['medium'], fuzzy_speed['medium'])
@@ -114,28 +114,28 @@ class FuzzyRules(object):
         troll_enemy_ogre['medium'] = fuzz.trapmf(troll_enemy_ogre.universe, [2, 5, 10, 15])
         troll_enemy_ogre['large'] = fuzz.trapmf(troll_enemy_ogre.universe, [10, 15, 80, 80])
 
-        rule5 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['one'], movement['attack'])
-        rule6 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['small'], movement['stay'])
+        rule5 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['one'], movement['move'])
+        rule6 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['small'], movement['move'])
         rule7 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['medium'], movement['move'])
         rule8 = ctrl.Rule(goblin_team['one'] & goblin_enemy_ogre['large'], movement['move'])
 
-        rule9 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['one'], movement['attack'])
-        rule10 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['small'], movement['attack'])
+        rule9 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['one'], movement['stay'])
+        rule10 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['small'], movement['stay'])
         rule11 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['medium'], movement['move'])
         rule12 = ctrl.Rule(goblin_team['small'] & goblin_enemy_ogre['large'], movement['move'])
 
         rule13 = ctrl.Rule(goblin_team['medium'] & goblin_enemy_ogre['one'], movement['attack'])
-        rule14 = ctrl.Rule(goblin_team['medium'] & goblin_enemy_ogre['small'], movement['attack'])
+        rule14 = ctrl.Rule(goblin_team['medium'] & goblin_enemy_ogre['small'], movement['stay'])
         rule15 = ctrl.Rule(goblin_team['medium'] & goblin_enemy_ogre['medium'], movement['stay'])
         rule16 = ctrl.Rule(goblin_team['medium'] & goblin_enemy_ogre['large'], movement['stay'])
 
         rule17 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['one'], movement['attack'])
         rule18 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['small'], movement['attack'])
-        rule19 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['medium'], movement['attack'])
-        rule20 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['large'], movement['move'])
+        rule19 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['medium'], movement['stay'])
+        rule20 = ctrl.Rule(goblin_team['large'] & goblin_enemy_ogre['large'], movement['stay'])
 
-        rule21 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['one'], movement['attack'])
-        rule22 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['small'], movement['stay'])
+        rule21 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['one'], movement['move'])
+        rule22 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['small'], movement['move'])
         rule23 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['medium'], movement['move'])
         rule24 = ctrl.Rule(goblin_team['one'] & goblin_enemy_troll['large'], movement['move'])
 
@@ -155,26 +155,27 @@ class FuzzyRules(object):
         rule36 = ctrl.Rule(goblin_team['large'] & goblin_enemy_troll['large'], movement['move'])
 
         rule1 = ctrl.Rule(ogre_team['one'] & ogre_enemy_goblin['one'], movement['attack'])
-        rule2 = ctrl.Rule(ogre_team['one'] & ogre_enemy_goblin['small'], movement['move'])
+        rule2 = ctrl.Rule(ogre_team['one'] & ogre_enemy_goblin['small'], movement['attack'])
         rule3 = ctrl.Rule(ogre_team['one'] & ogre_enemy_goblin['medium'], movement['stay'])
         rule4 = ctrl.Rule(ogre_team['one'] & ogre_enemy_goblin['large'], movement['move'])
 
+
         rule37 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['one'], movement['attack'])
-        rule38 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['small'], movement['stay'])
+        rule38 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['small'], movement['attack'])
         rule39 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['medium'], movement['attack'])
-        rule40 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['large'], movement['move'])
+        rule40 = ctrl.Rule(ogre_team['small'] & ogre_enemy_goblin['large'], movement['stay'])
 
         rule41 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['one'], movement['attack'])
         rule42 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['small'], movement['attack'])
-        rule43 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['medium'], movement['stay'])
-        rule44 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['large'], movement['move'])
+        rule43 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['medium'], movement['attack'])
+        rule44 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_goblin['large'], movement['attack'])
 
         rule45 = ctrl.Rule(ogre_team['large'] & ogre_enemy_goblin['one'], movement['attack'])
         rule46 = ctrl.Rule(ogre_team['large'] & ogre_enemy_goblin['small'], movement['attack'])
         rule47 = ctrl.Rule(ogre_team['large'] & ogre_enemy_goblin['medium'], movement['attack'])
-        rule48 = ctrl.Rule(ogre_team['large'] & ogre_enemy_goblin['large'], movement['move'])
+        rule48 = ctrl.Rule(ogre_team['large'] & ogre_enemy_goblin['large'], movement['attack'])
 
-        rule49 = ctrl.Rule(ogre_team['one'] & ogre_enemy_troll['one'], movement['attack'])
+        rule49 = ctrl.Rule(ogre_team['one'] & ogre_enemy_troll['one'], movement['move'])
         rule50 = ctrl.Rule(ogre_team['one'] & ogre_enemy_troll['small'], movement['move'])
         rule51 = ctrl.Rule(ogre_team['one'] & ogre_enemy_troll['medium'], movement['move'])
         rule52 = ctrl.Rule(ogre_team['one'] & ogre_enemy_troll['large'], movement['move'])
@@ -185,20 +186,20 @@ class FuzzyRules(object):
         rule56 = ctrl.Rule(ogre_team['small'] & ogre_enemy_troll['large'], movement['move'])
 
         rule57 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_troll['one'], movement['attack'])
-        rule58 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_troll['small'], movement['attack'])
+        rule58 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_troll['small'], movement['stay'])
         rule59 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_troll['medium'], movement['stay'])
         rule60 = ctrl.Rule(ogre_team['medium'] & ogre_enemy_troll['large'], movement['move'])
 
         rule61 = ctrl.Rule(ogre_team['large'] & ogre_enemy_troll['one'], movement['attack'])
         rule62 = ctrl.Rule(ogre_team['large'] & ogre_enemy_troll['small'], movement['attack'])
         rule63 = ctrl.Rule(ogre_team['large'] & ogre_enemy_troll['medium'], movement['attack'])
-        rule64 = ctrl.Rule(ogre_team['large'] & ogre_enemy_troll['large'], movement['move'])
+        rule64 = ctrl.Rule(ogre_team['large'] & ogre_enemy_troll['large'], movement['attack'])
 
         #########################################################################################
 
         rule65 = ctrl.Rule(troll_team['one'] & troll_enemy_goblin['one'], movement['attack'])
         rule66 = ctrl.Rule(troll_team['one'] & troll_enemy_goblin['small'], movement['attack'])
-        rule67 = ctrl.Rule(troll_team['one'] & troll_enemy_goblin['medium'], movement['move'])
+        rule67 = ctrl.Rule(troll_team['one'] & troll_enemy_goblin['medium'], movement['attack'])
         rule68 = ctrl.Rule(troll_team['one'] & troll_enemy_goblin['large'], movement['move'])
 
         rule69 = ctrl.Rule(troll_team['small'] & troll_enemy_goblin['one'], movement['attack'])
@@ -208,8 +209,8 @@ class FuzzyRules(object):
 
         rule73 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['one'], movement['attack'])
         rule74 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['small'], movement['attack'])
-        rule75 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['medium'], movement['stay'])
-        rule76 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['large'], movement['move'])
+        rule75 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['medium'], movement['attack'])
+        rule76 = ctrl.Rule(troll_team['medium'] & troll_enemy_goblin['large'], movement['attack'])
 
         rule77 = ctrl.Rule(troll_team['large'] & troll_enemy_goblin['one'], movement['attack'])
         rule78 = ctrl.Rule(troll_team['large'] & troll_enemy_goblin['small'], movement['attack'])
@@ -229,7 +230,7 @@ class FuzzyRules(object):
         rule89 = ctrl.Rule(troll_team['medium'] & troll_enemy_ogre['one'], movement['attack'])
         rule90 = ctrl.Rule(troll_team['medium'] & troll_enemy_ogre['small'], movement['attack'])
         rule91 = ctrl.Rule(troll_team['medium'] & troll_enemy_ogre['medium'], movement['attack'])
-        rule92 = ctrl.Rule(troll_team['medium'] & troll_enemy_ogre['large'], movement['move'])
+        rule92 = ctrl.Rule(troll_team['medium'] & troll_enemy_ogre['large'], movement['attack'])
 
         rule93 = ctrl.Rule(troll_team['large'] & troll_enemy_ogre['one'], movement['attack'])
         rule94 = ctrl.Rule(troll_team['large'] & troll_enemy_ogre['small'], movement['attack'])
@@ -267,7 +268,7 @@ class FuzzyRules(object):
 
     def get_fuzzy_value_for_attack(self, attack_cmd):
         if attack_cmd == "high":
-            self.attack_score.input['attack_variations'] = random.randrange(55,70)
+            self.attack_score.input['attack_variations'] = 5
 
         elif attack_cmd == "medium":
             self.attack_score.input['attack_variations'] = random.randrange(30,50)

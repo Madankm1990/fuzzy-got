@@ -48,11 +48,11 @@ class Skeleton:
 
     def update(self, grid, display_surf, to_attack, direction, enemy_bot, temp_bot_coord_dict):
         if to_attack and self.attack_charge_full == self.max_charge:
-            enemy_bot = self.attack_enemy(display_surf, direction, enemy_bot)
+            enemy_bot = self.attack_enemy(display_surf, direction, enemy_bot, temp_bot_coord_dict)
             if enemy_bot.dead:
+                temp_bot_coord_dict.pop(str(enemy_bot.gridx) + ":" + str(enemy_bot.gridy), None)
                 grid[enemy_bot.gridx][enemy_bot.gridy] = '0'
         else:
-            self.attack_charge_full+=1
             # update position
             if self.direction == 0 and (self.gridx + self.step) < self.global_max_x:
                 if grid[(self.gridx + self.step)][self.gridy] == '0':
@@ -124,7 +124,10 @@ class Skeleton:
         self._left_image_surf = pygame.transform.scale(pygame.image.load(self.left_image), (self.sprite_width, self.sprite_height)).convert()
         self._right_image_surf = pygame.transform.scale(pygame.image.load(self.right_image), (self.sprite_width, self.sprite_height)).convert()
 
-        self._attack_surf = pygame.transform.scale(pygame.image.load(self.attack_image), (self.sprite_width, self.sprite_height)).convert()
+        attack_image = pygame.image.load(self.attack_image).convert_alpha()
+        alpha = 128
+        attack_image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+        self._attack_surf = pygame.transform.scale(attack_image, (self.sprite_width, self.sprite_height)).convert()
 
     def draw(self, surface, image):
         surface.blit(image, (self.x, self.y))
@@ -172,34 +175,53 @@ class Skeleton:
         return goblin_count, ogre_count, troll_count
 
 
-    def attack_enemy(self, surface, direction, enemy_bot):
+    def attack_enemy(self, surface, direction, enemy_bot, temp_bot_coord_dict):
         self.attack_charge_full = 0
         if direction == "up":
             surface.blit(self._attack_surf, (self.x, self.y - 1 * self.sprite_height))
+            if str(self.gridx) + ":" + str(self.gridy - 1) in temp_bot_coord_dict:
+                enemy_bot.health -= self.attack_rate
+                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
+                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "down":
             surface.blit(self._attack_surf, (self.x, self.y + 1 * self.sprite_height))
+            if str(self.gridx) + ":" + str(self.gridy + 1) in temp_bot_coord_dict:
+                enemy_bot.health -= self.attack_rate
+                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
+                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "left":
             surface.blit(self._attack_surf, (self.x - 1 * self.sprite_width, self.y))
+            if str(self.gridx - 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
+                enemy_bot.health -= self.attack_rate
+                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
+                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "right":
             surface.blit(self._attack_surf, (self.x + 1 * self.sprite_width, self.y))
+            if str(self.gridx + 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
+                enemy_bot.health -= self.attack_rate
+                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
+                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
 
-        enemy_bot.health-=self.attack_rate
-        print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         if enemy_bot.health <= 0:
             enemy_bot.is_dead()
             print(enemy_bot.unique_id + " HAS DIED!")
 
+        self.draw(surface, self.image)
+
         return enemy_bot
 
+    def return_image_sprite(self):
+        return self._image_surf
 
     def is_dead(self):
         self.dead = True
 
-    def scan_stage(self, grid):
+    def scan_stage(self, grid, print_range=False):
         goblin_count, ogre_count, troll_count = self.sense_range(self.scan_range,grid)
-        print("*******" + self.unique_id + "*********")
-        print("Goblin Count: " + str(goblin_count))
-        print("Ogre Count: " + str(ogre_count))
-        print("Troll Count: " + str(troll_count))
-        print("****************")
+        if print_range:
+            print("*******" + self.unique_id + "*********")
+            print("Ninja Count: " + str(goblin_count))
+            print("Samurai Count: " + str(ogre_count))
+            print("Mage Count: " + str(troll_count))
+            print("****************")
         return goblin_count, ogre_count, troll_count
