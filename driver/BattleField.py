@@ -13,9 +13,9 @@ class BattleField:
     _running = True
     _display_surf = None
     global_army_group = []
-    goblin_army = 2
-    ogre_army = 1
-    troll_army = 2
+    goblin_army = 0
+    ogre_army = 0
+    troll_army = 3
     windowWidth = 1000
     windowHeight = 1000
     sprite_height = 60
@@ -24,9 +24,14 @@ class BattleField:
     grid = None
     attack_image = None
     _mountain_surf = None
+    seconds = 30
 
     def on_init(self):
         pygame.init()
+        self.title_font = pygame.font.SysFont('Sans', 20)
+        self.ending_font = pygame.font.SysFont('Sans', 50)
+        self.sprite_font = pygame.font.SysFont('Sans', 15)
+        self.clock = pygame.time.Clock()
 
         # set video mode
         self._display_surf = pygame.display.set_mode((self.windowWidth, self.windowHeight), pygame.HWSURFACE)
@@ -41,6 +46,8 @@ class BattleField:
         self.center_x = int(len(self.grid[0]) / 2)
         self.center_y = int(len(self.grid) / 2)
         self._mountain_surf = pygame.transform.scale(pygame.image.load(self.base_path + "/images/mountain.png"), (self.sprite_width, self.sprite_height)).convert()
+        self._forest_surf = pygame.transform.scale(pygame.image.load(self.base_path + "/images/forest.png"),
+                                                     (self.sprite_width, self.sprite_height)).convert()
 
         for mountain_idx_x in range(len(self.grid[0])):
             self._display_surf.blit(self._mountain_surf, ((mountain_idx_x * self._mountain_surf.get_width()),0))
@@ -62,7 +69,7 @@ class BattleField:
         for mountain_idx_x in range(-4, 4):
             for mountain_idx_y in range(-4, 4):
                 if mountain_idx_x % 2 ==0 and mountain_idx_x == mountain_idx_y or abs(mountain_idx_x - mountain_idx_y) > 2:
-                    self._display_surf.blit(self._mountain_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
+                    self._display_surf.blit(self._forest_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
                     self.grid[self.center_x + mountain_idx_x][self.center_y + mountain_idx_y] = 'M'
 
         # global army group - consists of all warriors
@@ -108,7 +115,7 @@ class BattleField:
         for bot in self.global_army_group:
             bot.create_avatar()
 
-        pygame.display.set_caption('Ninjas Samurais & Mages - The Grand NSM War')
+        pygame.display.set_caption('Ninjas, Samurais & Mages - The Grand N.S.M. War')
         self._running = True
 
 
@@ -117,9 +124,9 @@ class BattleField:
             self._running = False
 
     def on_render(self):
-        self._display_surf.fill((120, 100, 25))
+        self._display_surf.fill((120, 100, 25))  # ground
 
-        # mountains
+        # mountains and forest
         for mountain_idx_x in range(len(self.grid[0])):
             self._display_surf.blit(self._mountain_surf, ((mountain_idx_x * self._mountain_surf.get_width()),0))
             self.grid[mountain_idx_x][0] = 'M'
@@ -131,6 +138,7 @@ class BattleField:
         for mountain_idx_y in range(len(self.grid)):
             self._display_surf.blit(self._mountain_surf, (len(self.grid[0]) * self._mountain_surf.get_width(), mountain_idx_y * self._mountain_surf.get_height()))
             self.grid[len(self.grid[0]) - 1][mountain_idx_y] = 'M'
+        self._display_surf.blit(self._mountain_surf, (len(self.grid[0]) * self._mountain_surf.get_width(), len(self.grid) * self._mountain_surf.get_height()))
 
         for mountain_idx_y in range(len(self.grid)):
             self._display_surf.blit(self._mountain_surf, (0, mountain_idx_y * self._mountain_surf.get_height()))
@@ -139,9 +147,42 @@ class BattleField:
         for mountain_idx_x in range(-4, 4):
             for mountain_idx_y in range(-4, 4):
                 if mountain_idx_x % 2 ==0 and mountain_idx_x == mountain_idx_y or abs(mountain_idx_x - mountain_idx_y) > 2:
-                    self._display_surf.blit(self._mountain_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
+                    self._display_surf.blit(self._forest_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
 
-        #self._display_surf.fill((0,0,0))
+        # heading and timer
+        text = self.title_font.render('Ninjas Samurais & Mages - The Grand NSM War', True, (255, 255, 255), (0, 0, 0))
+        textrect = text.get_rect()
+        textrect.centerx = int(len(self.grid[0]) / 2) * self.sprite_width
+        textrect.centery = int(self.sprite_height / 2)
+        self._display_surf.blit(text, textrect)
+
+        # top right - count of agents
+        text = self.sprite_font.render("Ninja: " + str(self.goblin_army), True, (255, 255, 255), (0, 0, 0))
+        textrect = text.get_rect()
+        textrect.centerx = len(self.grid[0]) * self.sprite_width
+        textrect.centery = int(self.sprite_height / 2 - 20)
+        self._display_surf.blit(text, textrect)
+        text = self.sprite_font.render("Samurai: " + str(self.ogre_army) , True, (255, 255, 255), (0, 0, 0))
+        textrect = text.get_rect()
+        textrect.centerx = len(self.grid[0]) * self.sprite_width
+        textrect.centery = int(self.sprite_height / 2)
+        self._display_surf.blit(text, textrect)
+        text = self.sprite_font.render("Mage: " + str(self.troll_army), True, (255, 255, 255), (0, 0, 0))
+        textrect = text.get_rect()
+        textrect.centerx = len(self.grid[0]) * self.sprite_width
+        textrect.centery = int(self.sprite_height / 2 + 20)
+        self._display_surf.blit(text, textrect)
+
+        # bottom right - clock
+        self.clock.tick(4)
+        text = self.title_font.render("Time Remaining: " + str(int(self.seconds)), True, (255, 255, 255), (0, 0, 0))
+        textrect = text.get_rect()
+        textrect.centerx = (len(self.grid[0]) * self.sprite_width) - 100
+        textrect.centery = (len(self.grid) * self.sprite_height) + 25
+        self._display_surf.blit(text, textrect)
+        self.seconds -= 0.25
+
+
         # track all coords of all bots
         temp_bot_coord_dict = {}
         for bot in self.global_army_group:
@@ -149,13 +190,18 @@ class BattleField:
 
         # render all bots - may actors play their role!!
         for bot in self.global_army_group:
-            self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict,highlighter=True)
+            self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict, highlighter=True)
 
         self.global_army_group = []
         self.goblin_army = 0
         self.ogre_army = 0
         self.troll_army = 0
+
+        set_sprites = set()
         for key, value in temp_bot_coord_dict.items():
+            set_sprites.add(value)
+
+        for value in set_sprites:
             if value.dead is False:
                 self.global_army_group.append(value)
                 if value.type == 'G':
@@ -167,11 +213,38 @@ class BattleField:
             else:
                 self.grid[value.gridx][value.gridy] = '0'
 
-        print("****************")
-        print("NINJAS:" + str(self.goblin_army) if self.goblin_army >=0 else 0)
-        print("SAMURAIS:" + str(self.ogre_army) if self.ogre_army >=0 else 0)
-        print("MAGES:" + str(self.troll_army) if self.troll_army >=0 else 0)
-        print("****************")
+        #print("****************")
+        #print("NINJAS:" + str(self.goblin_army) if self.goblin_army >=0 else 0)
+        #print("SAMURAIS:" + str(self.ogre_army) if self.ogre_army >=0 else 0)
+        #print("MAGES:" + str(self.troll_army) if self.troll_army >=0 else 0)
+        #print("****************")
+
+        winner_decided = False
+        winner = 'Draw'
+        war = False  # True if multi-agents wage war; else False
+
+        # only one army standing - declare winner
+        if war:
+            if self.goblin_army == 0 and self.ogre_army == 0:
+                winner_decided = True
+                winner = 'Mage'
+            elif self.goblin_army == 0 and self.troll_army == 0:
+                winner_decided = True
+                winner = 'Samurai'
+            if self.troll_army == 0 and self.ogre_army == 0:
+                winner_decided = True
+                winner = 'Ninja'
+
+        # time's up
+        if self.seconds <= 0 or winner_decided:
+            text = self.ending_font.render("Game Over! Winner: " + winner, True, (255, 255, 255), (0, 0, 0))
+            textrect = text.get_rect()
+            textrect.centerx = (self.center_x * self.sprite_width)
+            textrect.centery = (self.center_y * self.sprite_height)
+            self._display_surf.blit(text, textrect)
+            pygame.display.flip()
+            time.sleep(5)
+            self._running = False
 
         pygame.display.flip()
 
@@ -189,8 +262,6 @@ class BattleField:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self._running = False
-            # TO CHANGE DELAY
-            time.sleep(500.0 / 1000.0)
         self.on_cleanup()
 
 

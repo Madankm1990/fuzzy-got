@@ -53,6 +53,7 @@ class FuzzyRules(object):
         #########################################################################################
         # DECISION MAKING - WHETHER TO STAY, MOVE OR ATTACK
         #########################################################################################
+        health = ctrl.Antecedent(np.arange(0, 300, 1), 'health')
         ogre_team = ctrl.Antecedent(np.arange(0, 49, 1), 'ogre_team')
         goblin_team = ctrl.Antecedent(np.arange(0, 25, 1), 'goblin_team')
         troll_team = ctrl.Antecedent(np.arange(0, 81, 1), 'troll_team')
@@ -69,20 +70,24 @@ class FuzzyRules(object):
         movement['attack'] = fuzz.trapmf(movement.universe, [30, 40, 60, 70])
         movement['move'] = fuzz.trapmf(movement.universe, [60, 70, 90, 100])
 
+        health['low'] = fuzz.trimf(health.universe, [0, 50, 120])
+        health['medium'] = fuzz.trimf(health.universe, [100, 150, 200])
+        health['high'] = fuzz.trimf(health.universe, [180, 200, 300])
+
         goblin_team['one'] = fuzz.trapmf(goblin_team.universe, [0, 0, 1, 2])
-        goblin_team['small'] = fuzz.trapmf(goblin_team.universe, [1, 1, 2, 6])
-        goblin_team['medium'] = fuzz.trapmf(goblin_team.universe, [4, 6, 10, 12])
-        goblin_team['large'] = fuzz.trapmf(goblin_team.universe, [10, 12, 24, 24])
+        goblin_team['small'] = fuzz.trapmf(goblin_team.universe, [1, 1, 2, 4])
+        goblin_team['medium'] = fuzz.trapmf(goblin_team.universe, [3, 4, 5, 6])
+        goblin_team['large'] = fuzz.trapmf(goblin_team.universe, [5, 6, 8, 10])
 
         ogre_team['one'] = fuzz.trapmf(ogre_team.universe, [0, 0, 1, 2])
-        ogre_team['small'] = fuzz.trapmf(ogre_team.universe, [1, 1, 2, 6])
-        ogre_team['medium'] = fuzz.trapmf(ogre_team.universe, [4, 6, 10, 12])
-        ogre_team['large'] = fuzz.trapmf(ogre_team.universe, [10, 12, 48, 48])
+        ogre_team['small'] = fuzz.trapmf(ogre_team.universe, [1, 1, 2, 4])
+        ogre_team['medium'] = fuzz.trapmf(ogre_team.universe, [3, 4, 5, 6])
+        ogre_team['large'] = fuzz.trapmf(ogre_team.universe, [5, 6, 8, 10])
 
         troll_team['one'] = fuzz.trapmf(troll_team.universe, [0, 0, 1, 2])
-        troll_team['small'] = fuzz.trapmf(troll_team.universe, [1, 1, 2, 6])
-        troll_team['medium'] = fuzz.trapmf(troll_team.universe, [4, 6, 10, 12])
-        troll_team['large'] = fuzz.trapmf(troll_team.universe, [10, 12, 80, 80])
+        troll_team['small'] = fuzz.trapmf(troll_team.universe, [1, 1, 2, 4])
+        troll_team['medium'] = fuzz.trapmf(troll_team.universe, [3, 4, 5, 6])
+        troll_team['large'] = fuzz.trapmf(troll_team.universe, [5, 6, 8, 10])
 
         ogre_enemy_goblin['one'] = fuzz.trapmf(ogre_enemy_goblin.universe, [0, 0, 1, 2])
         ogre_enemy_goblin['small'] = fuzz.trapmf(ogre_enemy_goblin.universe, [1, 1, 3, 5])
@@ -239,6 +244,12 @@ class FuzzyRules(object):
 
         #########################################################################################
 
+        rule97 = ctrl.Rule(health['high'], movement['attack'])
+        rule98 = ctrl.Rule(health['medium'], movement['attack'])
+        rule99 = ctrl.Rule(health['low'], movement['move'])
+
+        #########################################################################################
+
         movement_ctrl = ctrl.ControlSystem(
             [rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9, rule10, rule11, rule12,
              rule13, rule14, rule15, rule16, rule17, rule18, rule19, rule20, rule21, rule22, rule23,
@@ -248,7 +259,7 @@ class FuzzyRules(object):
              rule54, rule55, rule56, rule57, rule58, rule59, rule60, rule61, rule62, rule63, rule64,
              rule65, rule66, rule67, rule68, rule69, rule70, rule71, rule72, rule73, rule74, rule75,
              rule76, rule77, rule78, rule79, rule80, rule81, rule82, rule83, rule84, rule85, rule86,
-             rule87, rule88, rule89, rule90, rule91, rule92, rule93])
+             rule87, rule88, rule89, rule90, rule91, rule92, rule93, rule97,rule98,rule99])
 
         self.decision_score = ctrl.ControlSystemSimulation(movement_ctrl)
 
@@ -280,7 +291,8 @@ class FuzzyRules(object):
         return int(self.attack_score.output['fuzzy_attack_variations'])
 
 
-    def make_fuzzy_decision(self, goblin_count, ogre_count, troll_count, team):
+    def make_fuzzy_decision(self, goblin_count, ogre_count, troll_count, health):
+        self.decision_score.input['health'] = health
         self.decision_score.input['goblin_team'] = goblin_count
         self.decision_score.input['ogre_team'] = ogre_count
         self.decision_score.input['ogre_enemy_goblin'] = goblin_count

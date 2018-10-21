@@ -27,12 +27,13 @@ class Ogre(Skeleton):
                 decision = "move"
                 motive = "explore"
             else:
-                decision = FuzzyRules.make_fuzzy_decision(goblin_count, ogre_count, troll_count, self.type)
+                decision = FuzzyRules.make_fuzzy_decision(goblin_count, ogre_count, troll_count, self.type, self.health)
 
             if decision == "stay":
-                pass
+                self.draw(_display_surf, self._image_surf)
 
-            elif decision == "attack":
+            if decision == "attack":
+                print(self.unique_id + "SAYS ATTACK!!")
                 self.attack_rate = FuzzyRules.get_fuzzy_value_for_attack(self.attack)
                 # decide where to attack
                 if self.gridx - 1 >= 0 and grid[self.gridx - 1][self.gridy] != self.type and grid[self.gridx - 1][self.gridy] != '0':
@@ -117,9 +118,9 @@ class Ogre(Skeleton):
                     return 3, "down"
         for proximity in range(int(self.scan_range/2)):
             side = self.find_others(grid, ["G", "T"], proximity + 1)
-            if side and motive is not None and motive == "towards":
+            if side is not None and motive is not None and motive == "towards":
                 return proximity + 1, side
-            elif side and motive is None:  # run away in opposite direction!!
+            elif side is not None and motive is None:  # run away in opposite direction!!
                 print(self.unique_id + " CRIES \"RETREAT FOR NOW!!\"")
                 if side == "up":
                     return 3, "down"

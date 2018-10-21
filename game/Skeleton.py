@@ -206,7 +206,7 @@ class Skeleton:
             enemy_bot.is_dead()
             print(enemy_bot.unique_id + " HAS DIED!")
 
-        self.draw(surface, self.image)
+        self.draw(surface, self._image_surf)
 
         return enemy_bot
 

@@ -27,12 +27,13 @@ class Troll(Skeleton):
                 decision = "move"
                 motive = "explore"
             else:
-                decision = FuzzyRules.make_fuzzy_decision(goblin_count, ogre_count, troll_count, self.type)
+                decision = FuzzyRules.make_fuzzy_decision(goblin_count, ogre_count, troll_count, self.type, self.health)
 
             if decision == "stay":
-                pass
+                self.draw(_display_surf, self._image_surf)
 
             elif decision == "attack":
+                print(self.unique_id + "SAYS ATTACK!!")
                 self.attack_rate = FuzzyRules.get_fuzzy_value_for_attack(self.attack)
                 # decide where to attack
                 if self.gridx - 1 >= 0 and grid[self.gridx - 1][self.gridy] != self.type and grid[self.gridx - 1][self.gridy] != '0':
@@ -108,10 +109,10 @@ class Troll(Skeleton):
                 return 1, "down"
         for proximity in range(int(self.scan_range/2)):
             side = self.find_others(grid, ["O", "G"], proximity + 1)
-            if side and motive is not None and motive == "towards":
+            if side is not None and motive is not None and motive == "towards":
                 print(self.unique_id + " SAYS \"ME GONNA CRUSH YOU!!\"")
                 return proximity + 1, side
-            elif side and motive is None:  # run away in opposite direction!!
+            elif side is not None and motive is None:  # run away in opposite direction!!
                 if side == "up":
                     return 1, "down"
                 elif side == "down":
