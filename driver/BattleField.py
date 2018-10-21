@@ -13,9 +13,9 @@ class BattleField:
     _running = True
     _display_surf = None
     global_army_group = []
-    goblin_army = 0
-    ogre_army = 0
-    troll_army = 3
+    goblin_army = 5
+    ogre_army = 5
+    troll_army = 5
     windowWidth = 1000
     windowHeight = 1000
     sprite_height = 60
@@ -24,7 +24,7 @@ class BattleField:
     grid = None
     attack_image = None
     _mountain_surf = None
-    seconds = 30
+    seconds = 180
 
     def on_init(self):
         pygame.init()
@@ -174,7 +174,7 @@ class BattleField:
         self._display_surf.blit(text, textrect)
 
         # bottom right - clock
-        self.clock.tick(4)
+        self.clock.tick(3)
         text = self.title_font.render("Time Remaining: " + str(int(self.seconds)), True, (255, 255, 255), (0, 0, 0))
         textrect = text.get_rect()
         textrect.centerx = (len(self.grid[0]) * self.sprite_width) - 100
@@ -191,6 +191,8 @@ class BattleField:
         # render all bots - may actors play their role!!
         for bot in self.global_army_group:
             self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict, highlighter=True)
+            bot.draw(self._display_surf)
+            bot.draw_decision(self._display_surf)
 
         self.global_army_group = []
         self.goblin_army = 0
@@ -221,7 +223,7 @@ class BattleField:
 
         winner_decided = False
         winner = 'Draw'
-        war = False  # True if multi-agents wage war; else False
+        war = True  # True if multi-agents wage war; else False
 
         # only one army standing - declare winner
         if war:

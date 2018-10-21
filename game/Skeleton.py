@@ -24,9 +24,12 @@ class Skeleton:
     dead = False
     unique_id = None
     max_charge = 0
+    text = None
+    textrect = None
+    previous_decision = 'move'
 
     def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x, army_y, global_min_x, global_min_y, global_max_x, global_max_y):
-        self.health = 500
+        self.health = 300
         # formation based on army coordinates
         self.global_min_x, self.global_min_y, self.global_max_x, self.global_max_y = global_min_x, global_min_y, global_max_x, global_max_y
         self.up_image = up_image
@@ -45,13 +48,18 @@ class Skeleton:
         self.gridx = army_x
         self.x = army_x * self.sprite_width
         self.y = army_y * self.sprite_height
+        self.font = pygame.font.SysFont('Sans', 15)
+        self.text = self.font.render('stay', True, (255, 255, 255), (255, 255, 255))
+        self.textrect = self.text.get_rect()
 
     def update(self, grid, display_surf, to_attack, direction, enemy_bot, temp_bot_coord_dict):
-        if to_attack and self.attack_charge_full == self.max_charge:
+        self.attack_charge_full += 1
+        if to_attack and self.attack_charge_full >= self.max_charge:
             enemy_bot = self.attack_enemy(display_surf, direction, enemy_bot, temp_bot_coord_dict)
             if enemy_bot.dead:
-                temp_bot_coord_dict.pop(str(enemy_bot.gridx) + ":" + str(enemy_bot.gridy), None)
-                grid[enemy_bot.gridx][enemy_bot.gridy] = '0'
+                if str(enemy_bot.gridx) + ":" + str(enemy_bot.gridy) in temp_bot_coord_dict:
+                    #temp_bot_coord_dict.pop(str(enemy_bot.gridx) + ":" + str(enemy_bot.gridy), None)
+                    grid[enemy_bot.gridx][enemy_bot.gridy] = '0'
         else:
             # update position
             if self.direction == 0 and (self.gridx + self.step) < self.global_max_x:
@@ -94,7 +102,20 @@ class Skeleton:
                     grid[(self.gridx)][self.gridy] = self.type
                     temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy)] = self
 
-        self.draw(display_surf, self._image_surf)
+            else:
+                if self.speed == "fast":
+                    self.speed = "medium"
+                elif self.speed == "medium":
+                    self.speed = "slow"
+                elif self.speed == "slow":
+                    self.speed = "medium"
+                text = self.font.render("stay", True, (0, 0, 0), (255, 255, 255))
+                textrect = text.get_rect()
+                textrect.centerx = self.x + int(self.sprite_width / 2)
+                textrect.centery = self.y
+                display_surf.blit(text, textrect)
+
+        #self.draw(display_surf)
         return grid, enemy_bot, temp_bot_coord_dict
 
 
@@ -124,14 +145,17 @@ class Skeleton:
         self._left_image_surf = pygame.transform.scale(pygame.image.load(self.left_image), (self.sprite_width, self.sprite_height)).convert()
         self._right_image_surf = pygame.transform.scale(pygame.image.load(self.right_image), (self.sprite_width, self.sprite_height)).convert()
 
-        attack_image = pygame.image.load(self.attack_image).convert_alpha()
-        alpha = 128
-        attack_image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+        attack_image = pygame.image.load(self.attack_image)
+        #alpha = 128
+        #attack_image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
         self._attack_surf = pygame.transform.scale(attack_image, (self.sprite_width, self.sprite_height)).convert()
+        self._image_surf = self._down_image_surf
 
-    def draw(self, surface, image):
-        surface.blit(image, (self.x, self.y))
+    def draw(self, surface):
+        surface.blit(self._image_surf, (self.x, self.y))
 
+    def draw_decision(self, surface):
+        surface.blit(self.text, self.textrect)
 
     def sense_range(self, rang, grid):
         step_path = int(rang/2)
@@ -179,34 +203,26 @@ class Skeleton:
         self.attack_charge_full = 0
         if direction == "up":
             surface.blit(self._attack_surf, (self.x, self.y - 1 * self.sprite_height))
-            if str(self.gridx) + ":" + str(self.gridy - 1) in temp_bot_coord_dict:
-                enemy_bot.health -= self.attack_rate
-                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
-                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
+            enemy_bot.health -= self.attack_rate
+            print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "down":
             surface.blit(self._attack_surf, (self.x, self.y + 1 * self.sprite_height))
-            if str(self.gridx) + ":" + str(self.gridy + 1) in temp_bot_coord_dict:
-                enemy_bot.health -= self.attack_rate
-                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
-                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
+            enemy_bot.health -= self.attack_rate
+            print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "left":
             surface.blit(self._attack_surf, (self.x - 1 * self.sprite_width, self.y))
-            if str(self.gridx - 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
-                enemy_bot.health -= self.attack_rate
-                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
-                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
+            enemy_bot.health -= self.attack_rate
+            print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
         elif direction == "right":
             surface.blit(self._attack_surf, (self.x + 1 * self.sprite_width, self.y))
-            if str(self.gridx + 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
-                enemy_bot.health -= self.attack_rate
-                print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(
-                self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
+            enemy_bot.health -= self.attack_rate
+            print(self.unique_id + " ATTACKS " + enemy_bot.unique_id + " WITH A FORCE OF " + str(self.attack_rate) + " LEAVING ENEMY HEART AT " + str(enemy_bot.health))
 
         if enemy_bot.health <= 0:
             enemy_bot.is_dead()
             print(enemy_bot.unique_id + " HAS DIED!")
 
-        self.draw(surface, self._image_surf)
+        self.draw(surface)
 
         return enemy_bot
 

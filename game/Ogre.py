@@ -10,9 +10,9 @@ class Ogre(Skeleton):
         self.attack = "medium"
         self.speed = "medium"
         self.type = "O"
-        self.scan_range = 5
+        self.scan_range = 3
         self.unique_id = "O" + str(idx)
-        self.max_charge = 2
+        self.max_charge = 4
         self.font = pygame.font.SysFont('Sans', 15)
 
 
@@ -28,37 +28,44 @@ class Ogre(Skeleton):
                 motive = "explore"
             else:
                 decision = FuzzyRules.make_fuzzy_decision(goblin_count, ogre_count, troll_count, self.type, self.health)
-
+                if self.previous_decision == decision and decision is not "move":
+                    decision = "move"
+                self.previous_decision = decision
             if decision == "stay":
-                self.draw(_display_surf, self._image_surf)
+                #self.draw(_display_surf)
+                pass
 
             if decision == "attack":
-                print(self.unique_id + "SAYS ATTACK!!")
+                #print(self.unique_id + " SAYS ATTACK!!")
                 self.attack_rate = FuzzyRules.get_fuzzy_value_for_attack(self.attack)
                 # decide where to attack
-                if self.gridx - 1 >= 0 and grid[self.gridx - 1][self.gridy] != self.type and grid[self.gridx - 1][self.gridy] != '0':
-                    enemy_bot = temp_bot_coord_dict[str(self.gridx - 1) + ":" + str(self.gridy)]
-                    grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "left", enemy_bot, temp_bot_coord_dict)
-                    temp_bot_coord_dict[str(self.gridx - 1) + ":" + str(self.gridy)] = enemy_bot
-                elif self.gridx + 1 < len(grid[0]) and grid[self.gridx + 1][self.gridy] != self.type and grid[self.gridx + 1][self.gridy] != '0':
-                    enemy_bot = temp_bot_coord_dict[str(self.gridx + 1) + ":" + str(self.gridy)]
-                    grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "right", enemy_bot, temp_bot_coord_dict)
-                    temp_bot_coord_dict[str(self.gridx + 1) + ":" + str(self.gridy)] = enemy_bot
-                elif self.gridy + 1 < len(grid) and grid[self.gridx][self.gridy + 1] != self.type and grid[self.gridx][self.gridy + 1] != '0':
-                    enemy_bot = temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy + 1)]
-                    grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "down", enemy_bot, temp_bot_coord_dict)
-                    temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy + 1)] = enemy_bot
-                elif self.gridy - 1 >= 0 and grid[self.gridx][self.gridy - 1] != self.type and grid[self.gridx][self.gridy - 1] != '0':
-                    enemy_bot = temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy - 1)]
-                    grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "up", enemy_bot, temp_bot_coord_dict)
-                    temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy - 1)] = enemy_bot
+                if self.gridx - 1 >= 0 and grid[self.gridx - 1][self.gridy] != self.type and grid[self.gridx - 1][self.gridy] != '0'  and grid[self.gridx - 1][self.gridy] != 'M':
+                    if str(self.gridx - 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
+                        enemy_bot = temp_bot_coord_dict[str(self.gridx - 1) + ":" + str(self.gridy)]
+                        grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "left", enemy_bot, temp_bot_coord_dict)
+                        temp_bot_coord_dict[str(self.gridx - 1) + ":" + str(self.gridy)] = enemy_bot
+                elif self.gridx + 1 < len(grid[0]) and grid[self.gridx + 1][self.gridy] != self.type and grid[self.gridx + 1][self.gridy] != '0' and grid[self.gridx + 1][self.gridy] != '0':
+                    if str(self.gridx + 1) + ":" + str(self.gridy) in temp_bot_coord_dict:
+                        enemy_bot = temp_bot_coord_dict[str(self.gridx + 1) + ":" + str(self.gridy)]
+                        grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "right", enemy_bot, temp_bot_coord_dict)
+                        temp_bot_coord_dict[str(self.gridx + 1) + ":" + str(self.gridy)] = enemy_bot
+                elif self.gridy + 1 < len(grid) and grid[self.gridx][self.gridy + 1] != self.type and grid[self.gridx][self.gridy + 1] != '0' and grid[self.gridx][self.gridy + 1] != 'M':
+                    if str(self.gridx) + ":" + str(self.gridy + 1) in temp_bot_coord_dict:
+                        enemy_bot = temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy + 1)]
+                        grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "down", enemy_bot, temp_bot_coord_dict)
+                        temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy + 1)] = enemy_bot
+                elif self.gridy - 1 >= 0 and grid[self.gridx][self.gridy - 1] != self.type and grid[self.gridx][self.gridy - 1] != '0' and grid[self.gridx][self.gridy - 1] != 'M':
+                    if str(self.gridx) + ":" + str(self.gridy - 1) in temp_bot_coord_dict:
+                        enemy_bot = temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy - 1)]
+                        grid,enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, True, "up", enemy_bot, temp_bot_coord_dict)
+                        temp_bot_coord_dict[str(self.gridx) + ":" + str(self.gridy - 1)] = enemy_bot
                 else:  # move towards enemy
                     motive = "towards"
                     decision = "move"
 
             if decision == "move":
                 self.speed = "medium"
-                proximity, side = self.get_status_of_enemy(grid, motive)
+                proximity, side, decision = self.get_status_of_enemy(grid, motive)
                 if proximity >= 2:
                     self.speed = "slow"
 
@@ -72,8 +79,20 @@ class Ogre(Skeleton):
                     self.moveRight()
                 elif side == "down":
                     self.moveDown()
+                else:
+                    random_decision = int(randrange(1, 5))
+                    if random_decision == 1:
+                        self.moveUp()
+                    elif random_decision == 2:
+                        self.moveLeft()
+                    elif random_decision == 3:
+                        self.moveRight()
+                    elif random_decision == 4:
+                        self.moveDown()
 
                 grid, enemy_bot, temp_bot_coord_dict = self.update(grid, _display_surf, False, None, None, temp_bot_coord_dict)
+
+            _display_surf.blit(self.return_image_sprite(),(self.x,self.y))
 
             if highlighter:
                 step_path = int(self.scan_range/ 2)
@@ -83,58 +102,67 @@ class Ogre(Skeleton):
                             _display_surf.set_at(((self.x + int(self.sprite_width / 2)) + i * highlighter_idx,
                                                   (self.y + int(self.sprite_height / 2)) + j * highlighter_idx),
                                                  (255, 0, 0))
-            text = self.font.render(decision, True, (255, 0, 0), (255, 255, 255))
-            textrect = text.get_rect()
-            textrect.centerx = self.x + int(self.sprite_width / 2)
-            textrect.centery = self.y
-            _display_surf.blit(text, textrect)
+            self.text = self.font.render(decision, True, (255, 0, 0), (255, 255, 255))
+            self.textrect = self.text.get_rect()
+            self.textrect.centerx = self.x + int(self.sprite_width / 2)
+            self.textrect.centery = self.y
+            #_display_surf.blit(text, textrect)
 
             return grid, temp_bot_coord_dict
-        except:
+        except Exception as e:
+            #print("exception in ogre:",e)
             return grid, temp_bot_coord_dict
 
     def get_status_of_enemy(self, grid, motive):
         proximity = 3
         side = None
+        side_retry = 0
         if motive is not None and motive == "explore":
             # either make a random move or
             # group together and move in unison
             random_decision = int(randrange(1, 100))
-            if random_decision % 2 == 0 or random_decision % 3 == 0 or random_decision % 5 == 0:
-                for proximity in range(2):
-                    side = self.find_others(grid, [self.type], proximity + 1)
+            if random_decision % 2 == 0 or random_decision % 3 == 0:
+                while side is None and side_retry<=3:
+                    for proximity in range(2):
+                        side = self.find_others(grid, [self.type], proximity + 1,side_retry)
+                        side_retry+=1
                     if side:
-                        print(self.unique_id + " SAYS \"OKAY LET'S TEAM UP AND BEAT EM!!\"")
-                        return proximity + 1, side
+                        print(self.unique_id + " SAYS \"SOLDIERS! TEAM UP AND BEAT EM!!\"")
+                        return proximity + 1, side,motive
             if side is None:  # random pick
                 random_decision = int(randrange(1, 5))
                 if random_decision == 1:
-                    return 3, "up"
+                    return 3, "up",motive
                 elif random_decision == 2:
-                    return 3, "left"
+                    return 3, "left",motive
                 elif random_decision == 3:
-                    return 3, "right"
+                    return 3, "right",motive
                 elif random_decision == 4:
-                    return 3, "down"
-        for proximity in range(int(self.scan_range/2)):
-            side = self.find_others(grid, ["G", "T"], proximity + 1)
+                    return 3, "down",motive
+        while side is None and side_retry<=3:
+            for proximity in range(int(self.scan_range/2)):
+                side = self.find_others(grid, ["G", "T"], proximity + 1,side_retry)
+                side_retry+=1
             if side is not None and motive is not None and motive == "towards":
-                return proximity + 1, side
+                #print(self.unique_id + " SHOUTS \"CHARGE!\"")
+                motive='charge-in'
+                return proximity + 1, side,motive
             elif side is not None and motive is None:  # run away in opposite direction!!
                 print(self.unique_id + " CRIES \"RETREAT FOR NOW!!\"")
+                motive = 'run-away'
                 if side == "up":
-                    return 3, "down"
+                    return 3, "down",motive
                 elif side == "down":
-                    return 3, "up"
+                    return 3, "up",motive
                 elif side == "left":
-                    return 3, "right"
+                    return 3, "right",motive
                 elif side == "right":
-                    return 3, "left"
+                    return 3, "left",motive
 
-        return proximity, side
+        return proximity, side,motive
 
 
-    def find_others(self, grid, person_type, proximity):
+    def find_others(self, grid, person_type, proximity,side_retry):
         count_list = [0,0,0,0]  # left, right, down, up
         for person in person_type:
             if self.gridx - proximity >= 0 and grid[self.gridx - proximity][self.gridy] == person:
@@ -145,6 +173,10 @@ class Ogre(Skeleton):
                 count_list[2]+=1
             elif self.gridy + proximity >= 0 and grid[self.gridx][self.gridy - proximity] == person:
                 count_list[3]+=1
+
+        if side_retry < len(count_list):
+            for i in range(side_retry):
+                count_list.remove(max(count_list))
 
         max_others = count_list.index(max(count_list))
         if max(count_list) > 0:
