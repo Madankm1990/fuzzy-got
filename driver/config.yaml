@@ -3,9 +3,9 @@
 # changes to characters - goblin -> ninja, ogre -> samurai, troll -> mage
 ###############################################################################
 army:
-  goblin_army: 10
-  ogre_army: 0
-  troll_army: 0
+  goblin_army: 5
+  ogre_army: 5
+  troll_army: 5
   mountain:
     sprite: "/images/mountain.png"
   forest:
@@ -20,6 +20,8 @@ army:
     max_charge: 2
     start_position: "bottom"
     fuzzy_roam: 1
+    attack: low  # low, medium, high
+    speed: fast  # fast, medium, slow
   ogre:
     up_sprite: "/images/ogre_up.png"
     left_sprite: "/images/ogre_left.png"
@@ -29,6 +31,8 @@ army:
     scan_range: 3
     max_charge: 4
     start_position: "top"
+    attack: medium
+    speed: medium
   troll:
     up_sprite: "/images/troll_up.png"
     left_sprite: "/images/troll_left.png"
@@ -38,6 +42,8 @@ army:
     scan_range: 5
     max_charge: 5
     start_position: "middle"
+    attack: high
+    speed: slow
 
 game_configs:
   frame_rate: 10

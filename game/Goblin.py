@@ -5,10 +5,10 @@ from game.Skeleton import Skeleton
 
 class Goblin(Skeleton):
 
-    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx,scan_range,max_charge,fuzzy_roam):
+    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx,scan_range,max_charge,fuzzy_roam,attack,speed):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
-        self.attack = "low"
-        self.speed = "fast"
+        self.attack = attack
+        self.speed = speed
         self.type = "G"
         self.scan_range = scan_range
         self.unique_id = "G" + str(idx)

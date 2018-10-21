@@ -51,17 +51,22 @@ class BattleField:
         self.goblin_start_position = configs["army"]["goblin"]["start_position"]
         if int(configs["army"]["goblin"]["fuzzy_roam"]) == 1:
             self.fuzzy_roam = True
+        self.goblin_attack = configs["army"]["goblin"]["attack"]
+        self.goblin_speed = configs["army"]["goblin"]["speed"]
 
         self.ogre_army = int(configs["army"]["ogre_army"])
         self.ogre_army_scan_range = int(configs["army"]["ogre"]["scan_range"])
         self.ogre_army_max_charge = int(configs["army"]["ogre"]["max_charge"])
         self.ogre_start_position = configs["army"]["ogre"]["start_position"]
+        self.ogre_attack = configs["army"]["ogre"]["attack"]
+        self.ogre_speed = configs["army"]["ogre"]["speed"]
 
         self.troll_army = int(configs["army"]["troll_army"])
         self.troll_army_scan_range = int(configs["army"]["troll"]["scan_range"])
         self.troll_army_max_charge = int(configs["army"]["troll"]["max_charge"])
         self.troll_start_position = configs["army"]["troll"]["start_position"]
-
+        self.troll_attack = configs["army"]["troll"]["attack"]
+        self.troll_speed = configs["army"]["troll"]["speed"]
 
         # game configs
         self.frame_rate = int(configs["game_configs"]["frame_rate"])
@@ -134,7 +139,7 @@ class BattleField:
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            goblin = Goblin.Goblin(self.base_path + configs["army"]["goblin"]["up_sprite"],self.base_path + configs["army"]["goblin"]["down_sprite"],self.base_path + configs["army"]["goblin"]["left_sprite"],self.base_path + configs["army"]["goblin"]["right_sprite"], self.base_path + configs["army"]["goblin"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), goblin_idx, self.goblin_army_scan_range, self.goblin_army_max_charge, self.fuzzy_roam)
+            goblin = Goblin.Goblin(self.base_path + configs["army"]["goblin"]["up_sprite"],self.base_path + configs["army"]["goblin"]["down_sprite"],self.base_path + configs["army"]["goblin"]["left_sprite"],self.base_path + configs["army"]["goblin"]["right_sprite"], self.base_path + configs["army"]["goblin"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), goblin_idx, self.goblin_army_scan_range, self.goblin_army_max_charge, self.fuzzy_roam, self.goblin_attack, self.goblin_speed)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = goblin.type
             self.global_army_group.append(goblin)
 
@@ -157,7 +162,7 @@ class BattleField:
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            ogre = Ogre.Ogre(self.base_path + configs["army"]["ogre"]["up_sprite"],self.base_path + configs["army"]["ogre"]["down_sprite"],self.base_path + configs["army"]["ogre"]["left_sprite"],self.base_path + configs["army"]["ogre"]["right_sprite"], self.base_path + configs["army"]["ogre"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), ogre_idx,self.ogre_army_scan_range, self.ogre_army_max_charge)
+            ogre = Ogre.Ogre(self.base_path + configs["army"]["ogre"]["up_sprite"],self.base_path + configs["army"]["ogre"]["down_sprite"],self.base_path + configs["army"]["ogre"]["left_sprite"],self.base_path + configs["army"]["ogre"]["right_sprite"], self.base_path + configs["army"]["ogre"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), ogre_idx,self.ogre_army_scan_range, self.ogre_army_max_charge, self.ogre_attack, self.ogre_speed)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = ogre.type
             self.global_army_group.append(ogre)
 
@@ -180,7 +185,7 @@ class BattleField:
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            troll = Troll.Troll(self.base_path + configs["army"]["troll"]["up_sprite"],self.base_path + configs["army"]["troll"]["down_sprite"],self.base_path + configs["army"]["troll"]["left_sprite"],self.base_path + configs["army"]["troll"]["right_sprite"], self.base_path + configs["army"]["troll"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), troll_idx,self.troll_army_scan_range, self.troll_army_max_charge)
+            troll = Troll.Troll(self.base_path + configs["army"]["troll"]["up_sprite"],self.base_path + configs["army"]["troll"]["down_sprite"],self.base_path + configs["army"]["troll"]["left_sprite"],self.base_path + configs["army"]["troll"]["right_sprite"], self.base_path + configs["army"]["troll"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), troll_idx,self.troll_army_scan_range, self.troll_army_max_charge, self.troll_attack, self.troll_speed)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = troll.type
             self.global_army_group.append(troll)
 
