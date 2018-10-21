@@ -4,6 +4,7 @@ from random import randrange
 import pygame
 from os.path import dirname as up
 import time
+import yaml
 
 from fuzzy import FuzzyRules
 
@@ -13,9 +14,9 @@ class BattleField:
     _running = True
     _display_surf = None
     global_army_group = []
-    goblin_army = 5
+    goblin_army = 10
     ogre_army = 5
-    troll_army = 5
+    troll_army = 2
     windowWidth = 1000
     windowHeight = 1000
     sprite_height = 60
@@ -25,13 +26,55 @@ class BattleField:
     attack_image = None
     _mountain_surf = None
     seconds = 180
+    radar = False
+    scan_range = False
+    war = False  # True if multi-agents wage war; else False
+    fuzzy_roam = False
 
     def on_init(self):
+        configuration_file = open("config.yaml", "r")
+        configs = yaml.load(configuration_file)
+
         pygame.init()
         self.title_font = pygame.font.SysFont('Sans', 20)
         self.ending_font = pygame.font.SysFont('Sans', 50)
         self.sprite_font = pygame.font.SysFont('Sans', 15)
         self.clock = pygame.time.Clock()
+
+        #########################################
+        # INITIALIZE FROM YAML
+        #########################################
+        # initialize army count
+        self.goblin_army = int(configs["army"]["goblin_army"])
+        self.goblin_army_scan_range = int(configs["army"]["goblin"]["scan_range"])
+        self.goblin_army_max_charge = int(configs["army"]["goblin"]["max_charge"])
+        self.goblin_start_position = configs["army"]["goblin"]["start_position"]
+        if int(configs["army"]["goblin"]["fuzzy_roam"]) == 1:
+            self.fuzzy_roam = True
+
+        self.ogre_army = int(configs["army"]["ogre_army"])
+        self.ogre_army_scan_range = int(configs["army"]["ogre"]["scan_range"])
+        self.ogre_army_max_charge = int(configs["army"]["ogre"]["max_charge"])
+        self.ogre_start_position = configs["army"]["ogre"]["start_position"]
+
+        self.troll_army = int(configs["army"]["troll_army"])
+        self.troll_army_scan_range = int(configs["army"]["troll"]["scan_range"])
+        self.troll_army_max_charge = int(configs["army"]["troll"]["max_charge"])
+        self.troll_start_position = configs["army"]["troll"]["start_position"]
+
+
+        # game configs
+        self.frame_rate = int(configs["game_configs"]["frame_rate"])
+        self.windowWidth = int(configs["game_configs"]["windowWidth"])
+        self.windowHeight = int(configs["game_configs"]["windowHeight"])
+        self.sprite_height = int(configs["game_configs"]["sprite_height"])
+        self.sprite_width = int(configs["game_configs"]["sprite_width"])
+        self.seconds = int(configs["game_configs"]["seconds"])
+        self.forest_cover_radius = int(configs["game_configs"]["forest_radius"])
+        if configs["game_configs"]["war"] == 1:
+            self.war = True
+        if configs["game_configs"]["radar"] == 1:
+            self.radar = True
 
         # set video mode
         self._display_surf = pygame.display.set_mode((self.windowWidth, self.windowHeight), pygame.HWSURFACE)
@@ -45,8 +88,8 @@ class BattleField:
         # build mountain
         self.center_x = int(len(self.grid[0]) / 2)
         self.center_y = int(len(self.grid) / 2)
-        self._mountain_surf = pygame.transform.scale(pygame.image.load(self.base_path + "/images/mountain.png"), (self.sprite_width, self.sprite_height)).convert()
-        self._forest_surf = pygame.transform.scale(pygame.image.load(self.base_path + "/images/forest.png"),
+        self._mountain_surf = pygame.transform.scale(pygame.image.load(self.base_path + configs["army"]["mountain"]["sprite"]), (self.sprite_width, self.sprite_height)).convert()
+        self._forest_surf = pygame.transform.scale(pygame.image.load(self.base_path + configs["army"]["forest"]["sprite"]),
                                                      (self.sprite_width, self.sprite_height)).convert()
 
         for mountain_idx_x in range(len(self.grid[0])):
@@ -66,8 +109,8 @@ class BattleField:
             self.grid[0][mountain_idx_y] = 'M'
 
 
-        for mountain_idx_x in range(-4, 4):
-            for mountain_idx_y in range(-4, 4):
+        for mountain_idx_x in range(-self.forest_cover_radius, self.forest_cover_radius):
+            for mountain_idx_y in range(-self.forest_cover_radius, self.forest_cover_radius):
                 if mountain_idx_x % 2 ==0 and mountain_idx_x == mountain_idx_y or abs(mountain_idx_x - mountain_idx_y) > 2:
                     self._display_surf.blit(self._forest_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
                     self.grid[self.center_x + mountain_idx_x][self.center_y + mountain_idx_y] = 'M'
@@ -75,39 +118,69 @@ class BattleField:
         # global army group - consists of all warriors
         for goblin_idx in range(self.goblin_army):
             temp_num = 1
+            random_army_starting_coord_x = 0
+            random_army_starting_coord_y = 0
             while True:
-                random_army_starting_coord_x = randrange(len(self.grid[0]) - temp_num * 2, len(self.grid[0]) - temp_num)
-                random_army_starting_coord_y = randrange(len(self.grid) - temp_num * 2, len(self.grid) - temp_num)
+                if self.goblin_start_position == "top":
+                    random_army_starting_coord_x = randrange(0 + temp_num, 0 + temp_num * 2)
+                    random_army_starting_coord_y = randrange(0 + temp_num, 0 + temp_num * 2)
+                elif self.goblin_start_position == "middle":
+                    random_army_starting_coord_x = randrange(self.center_x - temp_num, self.center_x + temp_num)
+                    random_army_starting_coord_y = randrange(self.center_y - temp_num, self.center_y + temp_num)
+                elif self.goblin_start_position == "bottom":
+                    random_army_starting_coord_x = randrange(len(self.grid[0]) - temp_num * 2,
+                                                             len(self.grid[0]) - temp_num)
+                    random_army_starting_coord_y = randrange(len(self.grid) - temp_num * 2, len(self.grid) - temp_num)
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            goblin = Goblin.Goblin(self.base_path + "/images/goblin_up.png",self.base_path + "/images/goblin_down.png",self.base_path + "/images/goblin_left.png",self.base_path + "/images/goblin_right.png", self.base_path + "/images/attack_goblin.png", random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), goblin_idx)
+            goblin = Goblin.Goblin(self.base_path + configs["army"]["goblin"]["up_sprite"],self.base_path + configs["army"]["goblin"]["down_sprite"],self.base_path + configs["army"]["goblin"]["left_sprite"],self.base_path + configs["army"]["goblin"]["right_sprite"], self.base_path + configs["army"]["goblin"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), goblin_idx, self.goblin_army_scan_range, self.goblin_army_max_charge, self.fuzzy_roam)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = goblin.type
             self.global_army_group.append(goblin)
 
 
         for ogre_idx in range(self.ogre_army):
             temp_num = 1
+            random_army_starting_coord_x = 0
+            random_army_starting_coord_y = 0
             while True:
-                random_army_starting_coord_x = randrange(0 + temp_num, 0 + temp_num * 2)
-                random_army_starting_coord_y = randrange(0 + temp_num, 0 + temp_num * 2)
+                if self.ogre_start_position == "top":
+                    random_army_starting_coord_x = randrange(0 + temp_num, 0 + temp_num * 2)
+                    random_army_starting_coord_y = randrange(0 + temp_num, 0 + temp_num * 2)
+                elif self.ogre_start_position == "middle":
+                    random_army_starting_coord_x = randrange(self.center_x - temp_num, self.center_x + temp_num)
+                    random_army_starting_coord_y = randrange(self.center_y - temp_num, self.center_y + temp_num)
+                elif self.ogre_start_position == "bottom":
+                    random_army_starting_coord_x = randrange(len(self.grid[0]) - temp_num * 2,
+                                                             len(self.grid[0]) - temp_num)
+                    random_army_starting_coord_y = randrange(len(self.grid) - temp_num * 2, len(self.grid) - temp_num)
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            ogre = Ogre.Ogre(self.base_path + "/images/ogre_up.png",self.base_path + "/images/ogre_down.png",self.base_path + "/images/ogre_left.png",self.base_path + "/images/ogre_right.png", self.base_path + "/images/attack_ogre.png", random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), ogre_idx)
+            ogre = Ogre.Ogre(self.base_path + configs["army"]["ogre"]["up_sprite"],self.base_path + configs["army"]["ogre"]["down_sprite"],self.base_path + configs["army"]["ogre"]["left_sprite"],self.base_path + configs["army"]["ogre"]["right_sprite"], self.base_path + configs["army"]["ogre"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), ogre_idx,self.ogre_army_scan_range, self.ogre_army_max_charge)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = ogre.type
             self.global_army_group.append(ogre)
 
 
         for troll_idx in range(self.troll_army):
             temp_num = 1
+            random_army_starting_coord_x = 0
+            random_army_starting_coord_y = 0
             while True:
-                random_army_starting_coord_x = randrange(self.center_x - temp_num, self.center_x + temp_num)
-                random_army_starting_coord_y = randrange(self.center_y - temp_num, self.center_y + temp_num)
+                if self.troll_start_position == "top":
+                    random_army_starting_coord_x = randrange(0 + temp_num, 0 + temp_num * 2)
+                    random_army_starting_coord_y = randrange(0 + temp_num, 0 + temp_num * 2)
+                elif self.troll_start_position == "middle":
+                    random_army_starting_coord_x = randrange(self.center_x - temp_num, self.center_x + temp_num)
+                    random_army_starting_coord_y = randrange(self.center_y - temp_num, self.center_y + temp_num)
+                elif self.troll_start_position == "bottom":
+                    random_army_starting_coord_x = randrange(len(self.grid[0]) - temp_num * 2,
+                                                             len(self.grid[0]) - temp_num)
+                    random_army_starting_coord_y = randrange(len(self.grid) - temp_num * 2, len(self.grid) - temp_num)
                 if random_army_starting_coord_x < len(self.grid[0]) and random_army_starting_coord_y < len(self.grid) and self.grid[random_army_starting_coord_x][random_army_starting_coord_y] == '0':
                     break
                 temp_num += 1
-            troll = Troll.Troll(self.base_path + "/images/troll_up.png",self.base_path + "/images/troll_down.png",self.base_path + "/images/troll_left.png",self.base_path + "/images/troll_right.png", self.base_path + "/images/attack_troll.png", random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), troll_idx)
+            troll = Troll.Troll(self.base_path + configs["army"]["troll"]["up_sprite"],self.base_path + configs["army"]["troll"]["down_sprite"],self.base_path + configs["army"]["troll"]["left_sprite"],self.base_path + configs["army"]["troll"]["right_sprite"], self.base_path + configs["army"]["troll"]["attack_sprite"], random_army_starting_coord_x, random_army_starting_coord_y, 0, 0, len(self.grid), len(self.grid[0]), troll_idx,self.troll_army_scan_range, self.troll_army_max_charge)
             self.grid[random_army_starting_coord_x][random_army_starting_coord_y] = troll.type
             self.global_army_group.append(troll)
 
@@ -144,8 +217,8 @@ class BattleField:
             self._display_surf.blit(self._mountain_surf, (0, mountain_idx_y * self._mountain_surf.get_height()))
             self.grid[0][mountain_idx_y] = 'M'
 
-        for mountain_idx_x in range(-4, 4):
-            for mountain_idx_y in range(-4, 4):
+        for mountain_idx_x in range(-self.forest_cover_radius, self.forest_cover_radius):
+            for mountain_idx_y in range(-self.forest_cover_radius, self.forest_cover_radius):
                 if mountain_idx_x % 2 ==0 and mountain_idx_x == mountain_idx_y or abs(mountain_idx_x - mountain_idx_y) > 2:
                     self._display_surf.blit(self._forest_surf, ((self.center_x * self.sprite_width) + (mountain_idx_x * self._mountain_surf.get_width()), (self.center_y * self.sprite_height) + (mountain_idx_y * self._mountain_surf.get_height())))
 
@@ -174,7 +247,7 @@ class BattleField:
         self._display_surf.blit(text, textrect)
 
         # bottom right - clock
-        self.clock.tick(3)
+        self.clock.tick(self.frame_rate)
         text = self.title_font.render("Time Remaining: " + str(int(self.seconds)), True, (255, 255, 255), (0, 0, 0))
         textrect = text.get_rect()
         textrect.centerx = (len(self.grid[0]) * self.sprite_width) - 100
@@ -190,7 +263,7 @@ class BattleField:
 
         # render all bots - may actors play their role!!
         for bot in self.global_army_group:
-            self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict, highlighter=True)
+            self.grid, temp_bot_coord_dict = bot.fuzzy_move(self.fuzzy_rules, self.grid, self._display_surf, temp_bot_coord_dict, highlighter=self.radar)
             bot.draw(self._display_surf)
             bot.draw_decision(self._display_surf)
 
@@ -215,18 +288,11 @@ class BattleField:
             else:
                 self.grid[value.gridx][value.gridy] = '0'
 
-        #print("****************")
-        #print("NINJAS:" + str(self.goblin_army) if self.goblin_army >=0 else 0)
-        #print("SAMURAIS:" + str(self.ogre_army) if self.ogre_army >=0 else 0)
-        #print("MAGES:" + str(self.troll_army) if self.troll_army >=0 else 0)
-        #print("****************")
-
         winner_decided = False
         winner = 'Draw'
-        war = True  # True if multi-agents wage war; else False
 
         # only one army standing - declare winner
-        if war:
+        if self.war:
             if self.goblin_army == 0 and self.ogre_army == 0:
                 winner_decided = True
                 winner = 'Mage'

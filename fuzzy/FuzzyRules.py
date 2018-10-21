@@ -51,6 +51,24 @@ class FuzzyRules(object):
         self.attack_score = ctrl.ControlSystemSimulation(movement_ctrl_attack)
 
         #########################################################################################
+        # ROAM OR STICK TOGETHER
+        #########################################################################################
+        roam = ctrl.Antecedent(np.arange(0, 10, 1), 'roam')
+        roam['yes'] = fuzz.trimf(roam.universe, [0, 5, 7])
+        roam['no'] = fuzz.trimf(roam.universe, [5, 7, 10])
+
+        fuzzy_roam = ctrl.Consequent(np.arange(0, 10, 1), 'fuzzy_roam_variations')
+        fuzzy_roam['yes'] = fuzz.trimf(fuzzy_roam.universe,[0, 5, 7])
+        fuzzy_roam['no'] = fuzz.trimf(fuzzy_roam.universe,[5, 7, 10])
+
+        rule_roam_yes = ctrl.Rule(roam['yes'], fuzzy_roam['yes'])
+        rule_roam_no = ctrl.Rule(roam['no'], fuzzy_roam['no'])
+
+        fuzzy_ctrl_roam = ctrl.ControlSystem([rule_roam_yes, rule_roam_no])
+        self.roam_score = ctrl.ControlSystemSimulation(fuzzy_ctrl_roam)
+
+
+        #########################################################################################
         # DECISION MAKING - WHETHER TO STAY, MOVE OR ATTACK
         #########################################################################################
         health = ctrl.Antecedent(np.arange(0, 300, 1), 'health')
@@ -289,6 +307,12 @@ class FuzzyRules(object):
 
         self.attack_score.compute()
         return int(self.attack_score.output['fuzzy_attack_variations'])
+
+
+    def get_fuzzy_value_for_roaming(self, roam_count):
+        self.roam_score.input(roam_count)
+        self.roam_score.compute()
+        return int(self.roam_score.output['fuzzy_roam_variations'])
 
 
     def make_fuzzy_decision(self, goblin_count, ogre_count, troll_count,team, health, display_input_output=True):

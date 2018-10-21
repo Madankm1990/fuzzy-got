@@ -5,14 +5,14 @@ from game.Skeleton import Skeleton
 
 class Troll(Skeleton):
 
-    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx):
+    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx,scan_range,max_charge):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
         self.attack = "high"
         self.speed = "slow"
         self.type = "T"
-        self.scan_range = 5
+        self.scan_range = scan_range
         self.unique_id = "T" + str(idx)
-        self.max_charge = 5
+        self.max_charge = max_charge
         self.font = pygame.font.SysFont('Sans', 15)
 
 

@@ -5,15 +5,16 @@ from game.Skeleton import Skeleton
 
 class Goblin(Skeleton):
 
-    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx):
+    def __init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y, idx,scan_range,max_charge,fuzzy_roam):
         Skeleton.__init__(self, up_image, down_image, left_image, right_image, attack_image, army_x,army_y, global_min_x, global_min_y, global_max_x, global_max_y)
         self.attack = "low"
         self.speed = "fast"
         self.type = "G"
-        self.scan_range = 7
+        self.scan_range = scan_range
         self.unique_id = "G" + str(idx)
-        self.max_charge = 2
+        self.max_charge = max_charge
         self.font = pygame.font.SysFont('Sans', 15)
+        self.fuzzy_roam = fuzzy_roam
 
 
     def fuzzy_move(self, FuzzyRules, grid, _display_surf, temp_bot_coord_dict,highlighter):
@@ -65,15 +66,16 @@ class Goblin(Skeleton):
 
             if decision == "move":
                 self.speed = "fast"
-                proximity, side, decision = self.get_status_of_enemy(grid, motive)
+                proximity, side, decision = self.get_status_of_enemy(grid, motive,FuzzyRules, goblin_count,self.fuzzy_roam)
                 if proximity == 1:
                     self.speed = "slow"
-                    print(self.unique_id + " DECIDES TO MOVE SLOW!")
+                    #print(self.unique_id + " DECIDES TO MOVE SLOW!")
                 elif proximity == 2:
                     self.speed = "medium"
-                    print(self.unique_id + " DECIDES TO MOVE AT MEDIUM RATE!")
+                    #print(self.unique_id + " DECIDES TO MOVE AT MEDIUM RATE!")
                 else:
-                    print(self.unique_id + " DECIDES TO MOVE FAST!")
+                    pass
+                    #print(self.unique_id + " DECIDES TO MOVE FAST!")
 
                 # determine fuzzy speed step
                 self.step = FuzzyRules.get_fuzzy_value_for_speed(self.speed)
@@ -119,22 +121,22 @@ class Goblin(Skeleton):
             return grid, temp_bot_coord_dict
 
 
-    def get_status_of_enemy(self, grid, motive):
+    def get_status_of_enemy(self, grid, motive,FuzzyRules,goblin_count, fuzzy_roam=True):
         proximity = 3
         side = None
         side_retry = 0
         if motive is not None and motive == "explore":
             # either make a random move or
             # group together and move in unison
-            random_decision = int(randrange(1, 100))
-            if random_decision % 2 == 0 or random_decision % 3 == 0 or random_decision % 5 == 0 or random_decision % 7 == 0:
+            if fuzzy_roam and FuzzyRules.get_fuzzy_value_for_roaming(goblin_count) > 5:
+                motive = 'stay'
                 while side is None and side_retry<=3:
                     for proximity in reversed(range(2)):
                         side = self.find_others(grid, [self.type], proximity + 1,side_retry)
                         side_retry+=1
                     if side:
                         print(self.unique_id + " SAYS \"UNION IS STRENGTH!!\"")
-                        return proximity + 1, side,motive
+                        return proximity + 1, side, motive
             if side is None:  # random pick
                 random_decision = int(randrange(1, 5))
                 if random_decision == 1:
